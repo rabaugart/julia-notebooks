@@ -45,7 +45,8 @@ destination_crs = "+proj=natearth2"
 
 # ╔═╡ 574cfe18-1b95-4b56-959f-6af6dccd76c1
 land_geojson_path = GeoMakie.assetpath("ne_110m_land.geojson")
-#"ne_110m_land.geojson")
+#ne_110m_land.geojson
+#ne_10m_populated_places_simple.geojson
 
 # ╔═╡ 4b76da51-5a6e-4bdf-a39e-09fdf2ce4306
 land_features = GeoDataFrames.read(land_geojson_path)
@@ -60,7 +61,19 @@ ga = GeoAxis(
     xticklabelsvisible = false,
     yticklabelsvisible = false,
 );
-    poly!(ga, land_features.geometry; color=:black)
+    poly!(ga, land_features.geometry; color=:gray)
+    # 113 umfasst Eurasien und Afrika
+    poly!(ga, land_features[113:113,:].geometry; color=:red)
+    # Australien
+    poly!(ga, land_features[22:22,:].geometry; color=:green)
+    # Besiedelte Orte
+    pop = GeoDataFrames.read(GeoMakie.assetpath("ne_10m_populated_places_simple.geojson"))
+    scatter!(pop.geometry; color=:yellow, markersize=2)
+    # Ein paar ausgewählte Orte
+    orte = ["Dubai","Berlin","Montevideo","Toronto","Valencia","Rio de Janeiro",
+           "Brisbane"]
+    mypop = pop[map( pi->pi ∈ orte, pop.name ),:]
+    scatter!(mypop.geometry; color=:blue, markersize=8)
 fig
 end
 
@@ -89,14 +102,12 @@ ga = GeoAxis(
 )
 lines!(ga, GeoMakie.coastlines()) # plot coastlines from Natural Earth as a reference
 # You can plot your data the same way you would in Makie
-scatter!(ga, -120:15:120, -60:7.5:60; strokecolor = (:black, 0.2))
-scatter!(ga, [bi.obs.longitude for bi in Obs.Alle], [bi.obs.latitude for bi in Obs.Alle])
+scatter!(ga, -120:15:120, -60:7.5:60; color = -60:7.5:60, strokecolor = (:black, 0.2))
+scatter!(ga, [bi.obs.longitude for bi in Obs.Alle], [bi.obs.latitude for bi in Obs.Alle];color=:red)
 fig
 end
 
 # ╔═╡ e2e8c36c-ea5d-4d1b-9a2b-811b4c5a1347
-# ╠═╡ disabled = true
-#=╠═╡
 let
 fieldlons = -180:180; fieldlats = -90:90
 field = [exp(cosd(lon)) + 3(lat/90) for lon in fieldlons, lat in fieldlats]
@@ -104,7 +115,7 @@ field = [exp(cosd(lon)) + 3(lat/90) for lon in fieldlons, lat in fieldlats]
 img = rotr90(GeoMakie.earth())
 land = GeoMakie.land()
 
-fig = Figure(size = (1000, 1000))
+fig = Figure(size = (700, 700))
 
 ga2 = GeoAxis(fig[1, 1]; dest = "+proj=moll", title = "Orthographic\n ")
 ga1 = GeoAxis(fig[1, 2]; dest = "+proj=ortho", title = "Image of Earth\n ")
@@ -120,7 +131,6 @@ poly!(ga4, land[22]);
 
 fig
 end
-  ╠═╡ =#
 
 # ╔═╡ 808815ab-86bd-4f72-9c6e-5cf7ae0ade2b
 GeoMakie.land()[50]
