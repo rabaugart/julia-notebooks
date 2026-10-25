@@ -21,7 +21,7 @@ using GeoDataFrames, DataFrames
 import GeoParquet, GeoJSON, Shapefile # activate native IO packages
 	
 # Ra
-using WGLMakie, RabaT1
+using WGLMakie, RabaT1, NaturalEarth
 end
 
 # ╔═╡ fc49445e-7deb-435d-acc6-4bab88c6fc94
@@ -66,6 +66,11 @@ ga = GeoAxis(
     poly!(ga, land_features[113:113,:].geometry; color=:red)
     # Australien
     poly!(ga, land_features[22:22,:].geometry; color=:green)
+    # Länder
+    cons = DataFrame(naturalearth("admin_0_countries", 110))
+    länder = ["Canada","Sudan","Mexico","Italy"]
+    mycons = cons[map( pi->pi ∈ länder, cons.NAME ),:]
+    poly!(ga,mycons.geometry; color=:black)
     # Besiedelte Orte
     pop = GeoDataFrames.read(GeoMakie.assetpath("ne_10m_populated_places_simple.geojson"))
     scatter!(pop.geometry; color=:yellow, markersize=2)
@@ -132,9 +137,6 @@ poly!(ga4, land[22]);
 fig
 end
 
-# ╔═╡ 808815ab-86bd-4f72-9c6e-5cf7ae0ade2b
-GeoMakie.land()[50]
-
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -148,6 +150,7 @@ GeoJSON = "61d90e0f-e114-555e-ac52-39dfb47a3ef9"
 GeoMakie = "db073c08-6b98-4ee5-b6a4-5efafb3259c6"
 GeoParquet = "e99870d8-ce00-4fdd-aeee-e09192881159"
 GeometryOps = "3251bfac-6a57-4b6d-aa61-ac1fef2975ab"
+NaturalEarth = "436b0209-26ab-4e65-94a9-6526d86fea76"
 Proj = "c94c279d-25a6-4763-9509-64d165bea63e"
 RabaT1 = "e39bd16c-3ab6-4377-8c1a-c05a439b8597"
 Shapefile = "8e980c4a-a4fe-5da2-b3a7-4b4b0353a2f4"
@@ -164,6 +167,7 @@ GeoJSON = "~0.8.4"
 GeoMakie = "~0.7.18"
 GeoParquet = "~0.4.0"
 GeometryOps = "~0.1.47"
+NaturalEarth = "~0.1.1"
 Proj = "~1.9.0"
 RabaT1 = "~0.6.8"
 Shapefile = "~0.13.4"
@@ -176,7 +180,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.6"
 manifest_format = "2.0"
-project_hash = "cb1f23a3b8a47cd1d01b3b558f4f48acbde15a10"
+project_hash = "1adf75925e2e84edd690e6d412a1df1bb3a19388"
 
 [[deps.ANSIColoredPrinters]]
 git-tree-sha1 = "574baf8110975760d391c710b6341da1afa48d8c"
@@ -2797,15 +2801,14 @@ version = "4.1.0+0"
 
 # ╔═╡ Cell order:
 # ╟─fc49445e-7deb-435d-acc6-4bab88c6fc94
-# ╟─839815a6-d064-11f1-3ef1-ad66ef4bc9ac
+# ╠═839815a6-d064-11f1-3ef1-ad66ef4bc9ac
 # ╠═d42f973a-25a3-4721-b88b-e3c0deedd1c7
 # ╠═475558ec-261c-454c-a161-40494e28dbc0
 # ╠═574cfe18-1b95-4b56-959f-6af6dccd76c1
 # ╠═4b76da51-5a6e-4bdf-a39e-09fdf2ce4306
-# ╟─d9d25282-f2bf-4582-86a8-190046d5ad19
+# ╠═d9d25282-f2bf-4582-86a8-190046d5ad19
 # ╟─f17a9804-4c1c-4765-9717-d025f5fed11b
 # ╠═17f83cca-1600-4204-aa77-9429c0d4944c
 # ╠═e2e8c36c-ea5d-4d1b-9a2b-811b4c5a1347
-# ╠═808815ab-86bd-4f72-9c6e-5cf7ae0ade2b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
