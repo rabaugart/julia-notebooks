@@ -33,6 +33,7 @@ Nützliche Ressourcen
 - Daten von [Natural Earth](https://github.com/nvkelso/natural-earth-vector)
 - Plotten mit [GeoMakie](https://github.com/MakieOrg/GeoMakie.jl)
 - Prozeduren, Infos und Daten auf [GeometryOps](https://juliageo.org/GeometryOps.jl/stable/tutorials/geospatial_geometry), dieses Notebook verwendet viel davon
+- [Projektionen](https://proj.org/en/stable/index.html)
 
 Dieses Notebook liegt unter [julia-notebooks](https://github.com/rabaugart/julia-notebooks/blob/main/geodata.jl).
 """
@@ -51,6 +52,9 @@ land_geojson_path = GeoMakie.assetpath("ne_110m_land.geojson")
 # ╔═╡ 4b76da51-5a6e-4bdf-a39e-09fdf2ce4306
 land_features = GeoDataFrames.read(land_geojson_path)
 
+# ╔═╡ 21118430-3b7b-4f02-afad-c8a2de87d0ee
+    countries = DataFrame(naturalearth("admin_0_countries", 110))
+
 # ╔═╡ d9d25282-f2bf-4582-86a8-190046d5ad19
 let
 	fig = Figure(size=(700, 500));
@@ -67,9 +71,8 @@ ga = GeoAxis(
     # Australien
     poly!(ga, land_features[22:22,:].geometry; color=:green)
     # Länder
-    cons = DataFrame(naturalearth("admin_0_countries", 110))
     länder = ["Canada","Sudan","Mexico","Italy"]
-    mycons = cons[map( pi->pi ∈ länder, cons.NAME ),:]
+    mycons = countries[map( pi->pi ∈ länder, countries.NAME ),:]
     poly!(ga,mycons.geometry; color=:black)
     # Besiedelte Orte
     pop = GeoDataFrames.read(GeoMakie.assetpath("ne_10m_populated_places_simple.geojson"))
@@ -80,6 +83,28 @@ ga = GeoAxis(
     mypop = pop[map( pi->pi ∈ orte, pop.name ),:]
     scatter!(mypop.geometry; color=:blue, markersize=8)
 fig
+end
+
+# ╔═╡ 0fbd9411-6c62-4bf5-b15e-126acdcdf8a6
+    countries2 = DataFrame(naturalearth("admin_0_countries", 10))
+
+# ╔═╡ 2f3f0925-807a-4e74-85cb-cbd013e82d77
+let
+	fig = Figure(size=(700, 700));
+    ga = GeoAxis(
+        fig[1, 1];
+        source = source_crs1,
+        dest = "+proj=utm +zone=32 +north",
+        xticklabelsvisible = false,
+        yticklabelsvisible = false,
+    );
+    #poly!(ga, land_features.geometry; color=:gray)
+    # Länder
+    länder = ["Germany"]
+    mycons = countries2[map( pi->pi ∈ länder, countries2.NAME ),:]
+    poly!(ga,mycons.geometry; color=:gray)
+    scatter!(ga, [bi.obs.longitude for bi in Obs.Alle], [bi.obs.latitude for bi in Obs.Alle];color=:red)
+    fig
 end
 
 # ╔═╡ f17a9804-4c1c-4765-9717-d025f5fed11b
@@ -99,16 +124,18 @@ end
 
 # ╔═╡ 17f83cca-1600-4204-aa77-9429c0d4944c
 let
-	b = Obs.B.obs
 	fig = Figure()
-ga = GeoAxis(
-    fig[1, 1]; # any cell of the figure's layout
-    dest = "+proj=wintri", # the CRS in which you want to plot
-)
-lines!(ga, GeoMakie.coastlines()) # plot coastlines from Natural Earth as a reference
-# You can plot your data the same way you would in Makie
-scatter!(ga, -120:15:120, -60:7.5:60; color = -60:7.5:60, strokecolor = (:black, 0.2))
-scatter!(ga, [bi.obs.longitude for bi in Obs.Alle], [bi.obs.latitude for bi in Obs.Alle];color=:red)
+	ga = GeoAxis(
+	    fig[1, 1]; # any cell of the figure's layout
+	    dest = "+proj=lcc +lon_0=13 +lat_1=53 +lat_2=45", # the CRS in which you want to plot
+		limits = ((-45.0,55.0),(10.0,70.0))		
+	)
+	poly!(ga, land_features.geometry; color=:gray)
+	#+proj=eqearth +lon_0=12.0
+	lines!(ga, GeoMakie.coastlines();color=:black) # plot coastlines from Natural Earth as a reference
+	# You can plot your data the same way you would in Makie
+	scatter!(ga, -120:15:120, -60:7.5:60; color = -60:7.5:60, strokecolor = (:black, 0.2))
+	scatter!(ga, [bi.obs.longitude for bi in Obs.Alle], [bi.obs.latitude for bi in Obs.Alle];color=:red)
 fig
 end
 
@@ -2806,7 +2833,10 @@ version = "4.1.0+0"
 # ╠═475558ec-261c-454c-a161-40494e28dbc0
 # ╠═574cfe18-1b95-4b56-959f-6af6dccd76c1
 # ╠═4b76da51-5a6e-4bdf-a39e-09fdf2ce4306
+# ╠═21118430-3b7b-4f02-afad-c8a2de87d0ee
 # ╠═d9d25282-f2bf-4582-86a8-190046d5ad19
+# ╠═0fbd9411-6c62-4bf5-b15e-126acdcdf8a6
+# ╠═2f3f0925-807a-4e74-85cb-cbd013e82d77
 # ╟─f17a9804-4c1c-4765-9717-d025f5fed11b
 # ╠═17f83cca-1600-4204-aa77-9429c0d4944c
 # ╠═e2e8c36c-ea5d-4d1b-9a2b-811b4c5a1347
